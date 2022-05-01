@@ -3,14 +3,14 @@ from affinda import AffindaAPI, TokenCredential
 from django.http import Http404, HttpResponse
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-from .serializers import SnippetSerializer
+from .serializers import SnippetSerializer, AffindaSerializer
 from rest_framework.views import APIView
 from rest_framework import status
 from django.http import Http404
 from .models import Snippet, Affinda
-from email import message
-from django.conf import settings
+import shutil
 import os
+
 class SnippetList(APIView):
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
    
@@ -104,7 +104,7 @@ class DeleteSnippetDetail(APIView):
 # class UserDetail(generics.RetrieveAPIView):
 #     queryset=User.objects.all()
 #     serializer_class= UserSerializer
-from .serializers import AffindaSerializer
+
 
 class AffindaNER(APIView):
     # def post(self,request ):
@@ -183,6 +183,13 @@ class AffindaNER(APIView):
             with open(str(file_path), "rb") as f:
                 resume = client.create_resume(file=f)
                 data = resume.as_dict()
+            # path=os.path.dirname(os.path.abspath(str(file_path)))
+            # os.remove(str(file_path))
+            # os.rmdir(path)
+            
+            shutil.rmtree(os.path.dirname(os.path.abspath(str(file_path))))
+            
+            # os.remove()
             return Response(
                 {
                     "data": data,
@@ -190,6 +197,8 @@ class AffindaNER(APIView):
                     "message": "Media created successfully",
                 }
             )
+            
+            
         else:
             return Response(
                 {
@@ -198,3 +207,4 @@ class AffindaNER(APIView):
                     "message": "serializer errors",
                 }
             )
+        
